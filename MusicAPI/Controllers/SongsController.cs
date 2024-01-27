@@ -1,7 +1,8 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
+using MusicAPI.Data;
 using MusicAPI.Models;
-using System.Runtime.CompilerServices;
+
+// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace MusicAPI.Controllers
 {
@@ -9,80 +10,51 @@ namespace MusicAPI.Controllers
     [ApiController]
     public class SongsController : ControllerBase
     {
-        private static List<Song> _songs = new List<Song>
+        private readonly APIDbContext dbContext;
+
+        public SongsController(APIDbContext dbContext)
         {
-            new Song
-            {
-                ID = 1,
-                Title = "Almost Home",
-                Language = "English"
-            },
-            new Song
-            {
-                ID = 2,
-                Title = "Yeah",
-                Language = "English"
-            },
-            new Song
-            {
-                ID = 3,
-                Title = "Entre Nosotros",
-                Language = "Español"
-            }
-
-
-        };
-
-        [HttpGet]//Mediante este controlador podemos hacer la petición
-        public IEnumerable<Song> GetAllSongs()
-        {
-            return _songs;
+            this.dbContext = dbContext;
         }
-        //Get api/songscontroller/0
-        [HttpGet("{ID}")]
-        //Al consultar por el ID, nos devuelva una canción en específico
-        public Song GetSongByID(int ID)
+
+
+        // GET: api/<SongsController>
+        [HttpGet]
+        public IEnumerable<Song> Get()
         {
-            return _songs.Find(song => song.ID == ID);
+            return dbContext.Songs;
         }
+
+        // GET api/<SongsController>/5
+        [HttpGet("{id}")]
+        public Song Get(int id)
+        {
+            return dbContext.Songs.Find(id);
+        }
+
+        // POST api/<SongsController>
         [HttpPost]
-        //Vamos a usar algo llamado ActionResulta
-        public IActionResult SaveOneSong([FromBody] Song newsong)
+        public IActionResult Post([FromBody] Song newSong)
         {
-            _songs.Add(newsong);
-            return Ok();
-        }
-        [HttpPut("{ID}/{newTitle}")]
-        public IActionResult UpdateSong(int ID, string newTitle)
-        {
-            var song = _songs.Find(song => song.ID == ID);
-            song.Title = newTitle;
-
+            dbContext.Songs.Add(newSong);
+            dbContext.SaveChanges();
             return Ok();
         }
 
-        //Put api/song/0
-        [HttpPut("{ID}")]
-        public IActionResult UpdateSong(int ID,[FromBody] Song updatedSong)
+        // PUT api/<SongsController>/5
+        [HttpPut("{id}")]
+        public ActionResult Put(int id, [FromBody] Song updatedSong)
         {
-            var song = _songs.Find(song => song.ID == ID);
+            var song = dbContext.Songs.Find(id);
 
-            song.Title = updatedSong.Title;
-            song.Language = updatedSong.Language; 
-
-            return Ok();
-        }
-        //Debemos de hacer el método eliminar
-
-
-        [HttpDelete("{ID}")]
-        public ActionResult DeleteSong(int ID)
-        {
-            var song = _songs.Find(song => song.ID == ID);
-            _songs.Remove(song);
-
-            return Ok();
+            song.Title = 
         }
 
+        // DELETE api/<SongsController>/5
+        [HttpDelete("{id}")]
+        public void Delete(Song id)
+        {
+            var song = dbContext.Songs.Find()
+        }
     }
 }
