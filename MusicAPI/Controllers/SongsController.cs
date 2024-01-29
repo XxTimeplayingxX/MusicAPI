@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MusicAPI.Data;
 using MusicAPI.Models;
+using System.Net;
+using System.Text.RegularExpressions;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -27,15 +29,32 @@ namespace MusicAPI.Controllers
 
         // GET api/<SongsController>/5
         [HttpGet("{id}")]
-        public Song Get(int id)
+        public IActionResult Get(int id)
         {
-            return dbContext.Songs.Find(id);
+            if (id <= 0)
+            {
+                return BadRequest("El ID debe de ser mayor que 0");
+            }
+            Song song = dbContext.Songs.Find(id);
+            if (song == null)
+            {
+                return NotFound("Héroe NO encontrado");
+            }
+            return Ok(song);
         }
 
         // POST api/<SongsController>
         [HttpPost]
         public IActionResult Post([FromBody] Song newSong)
         {
+            if (newSong == null)
+            {
+                return BadRequest("Los datos de la música están vacíos");
+            }
+            if ((string.IsNullOrEmpty(newSong.Title)) || string.IsNullOrEmpty(newSong.Language))
+            {
+                return BadRequest("Uno de los campos esta vacío");
+            }
             dbContext.Songs.Add(newSong);
             dbContext.SaveChanges();
             return Ok();
@@ -45,16 +64,37 @@ namespace MusicAPI.Controllers
         [HttpPut("{id}")]
         public ActionResult Put(int id, [FromBody] Song updatedSong)
         {
-            var song = dbContext.Songs.Find(id);
+            if(updatedSong == null)
+            {
+                return BadRequest("los datos son nulos");
+            }
 
-            song.Title = 
+            var existingSong = dbContext.Songs.Find(id);
+
+            if(existingSong == null)
+            {
+                return BadRequest("Canción NO encontrada");
+            }
+
+
+            existingSong.Title = updatedSong.Title;
+            existingSong.Language = updatedSong.Language;   
+
+            dbContext.SaveChanges();
+            return Ok();
         }
 
         // DELETE api/<SongsController>/5
         [HttpDelete("{id}")]
-        public void Delete(Song id)
+        public IActionResult Delete(Song id)
         {
-            var song = dbContext.Songs.Find()
+            var songToDelete = dbContext.Songs.Find(id);
+            if (songToDelete != null)
+            {
+                dbContext.Songs.Remove(songToDelete);
+                dbContext.SaveChanges();
+            }
+            return Ok();
         }
     }
 }
