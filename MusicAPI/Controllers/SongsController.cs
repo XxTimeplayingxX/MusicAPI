@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MusicAPI.Data;
+using MusicAPI.DTO;
 using MusicAPI.Models;
 using System.Net;
 using System.Text.RegularExpressions;
@@ -45,7 +46,8 @@ namespace MusicAPI.Controllers
 
         // POST api/<SongsController>
         [HttpPost]
-        public IActionResult Post([FromBody] Song newSong)
+        //Aquí cambiamos y va a recibir un objeto DTP
+        public IActionResult Post([FromBody] SongDTO newSong)
         {
             if (newSong == null)
             {
@@ -55,7 +57,12 @@ namespace MusicAPI.Controllers
             {
                 return BadRequest("Uno de los campos esta vacío");
             }
-            dbContext.Songs.Add(newSong);
+            var song = new Song
+            {
+                Title = newSong.Title,
+                Language = newSong.Language
+            };
+            dbContext.Songs.Add(song);
             dbContext.SaveChanges();
             return Ok();
         }
