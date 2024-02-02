@@ -13,13 +13,7 @@ builder.Services.AddDbContext<APIDbContext>(options => options.UseSqlServer(@"Da
 
 var app = builder.Build();
 
-//Using palabra reservada, permite que se ejecute una tarea y cuando termine cierre los recursos que ha utilizado
-using (var scope = app.Services.CreateScope())
-{
-    var dbContext = scope.ServiceProvider.GetService<APIDbContext>();
-    //use context
-    dbContext.Database.EnsureCreated();
-}
+
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
